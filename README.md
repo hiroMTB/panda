@@ -1,5 +1,8 @@
 # panda
 
+ESP32:
+amazon.de/-/en/AZDelivery-NodeMCU-Development-Unsoldered-Successor/dp/B08BTS62L7/ref=sr_1_4?dchild=1&keywords=esp32&qid=1619523648&sr=8-4&th=1
+
 LINKS
 
 IRREGULAR FASTLED MATRIX: 
