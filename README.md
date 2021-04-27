@@ -5,6 +5,9 @@ amazon.de/-/en/AZDelivery-NodeMCU-Development-Unsoldered-Successor/dp/B08BTS62L7
 
 LINKS
 
+LED MATRIX SOFTWARE FOR PC:
+https://www.youtube.com/watch?v=YjzLWnPI_hg&ab_channel=TylerTimoJ
+
 IRREGULAR FASTLED MATRIX: 
 https://macetech.github.io/FastLED-XY-Map-Generator/
 
