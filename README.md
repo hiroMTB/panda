@@ -8,6 +8,9 @@
 - https://github.com/FastLED/FastLED
 - https://github.com/JChristensen/JC_Button
 
+## SPIFFS
+- https://randomnerdtutorials.com/install-esp32-filesystem-uploader-arduino-ide/
+
 ## LINKS
 
 - LED MATRIX SOFTWARE FOR PC:
