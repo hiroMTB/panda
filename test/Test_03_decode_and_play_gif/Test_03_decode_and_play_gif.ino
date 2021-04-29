@@ -9,7 +9,7 @@
  #define DEBUG_BUTTON
 // #define DEBUG_SCREEN_CLEAR_CALLBACK
 // #define DEBUG_UPDATE_SCREEN_CALLBACK
- //#define DEBUG_DRAW_PIXEL_CALLBACK
+ #define DEBUG_DRAW_PIXEL_CALLBACK
  //#define DEBUG_FILE_SEEK_CALLBACK
  //#define DEBUG_FILE_POSITION_CALLBACK
  //#define DEBUG_FILE_READ_CALLBACK
@@ -84,14 +84,7 @@ void updateScreenCallback(){
 
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue){
   #ifdef DEBUG_DRAW_PIXEL_CALLBACK
-  Serial.print(">>> drawPixelCallback ");
-  if(x>8 || y>8){
-    Serial.print(">>> pixel (");
-    Serial.print(x);
-    Serial.print(",");
-    Serial.print(y);
-    Serial.println(")");
-  }
+  Serial.printf(">>> drawPixelCallback, pos(%i, %i), color(%i, %i, %i)\n", x, y, red, green, blue);
   #endif
 
   leds[XY(x,y)] = CRGB(red, green, blue);
