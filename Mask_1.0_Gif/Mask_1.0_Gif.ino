@@ -181,6 +181,9 @@ int fileReadBlockCallback(void * buffer, int numberOfBytes){
 }
 
 void setup() {
+  Serial.begin(57600);
+  Serial.println("start setup()...");
+
   FastLED.addLeds < CHIPSET, LED_PIN, COLOR_ORDER > (leds, NUM_LEDS).setCorrection(TypicalSMD5050);
   FastLED.setBrightness(brightness);
   FastLED.clear(true);
@@ -190,19 +193,24 @@ void setup() {
   minusBtn.begin();
   buttonPushCounter = (int)EEPROM.read(1);    // load previous setting
   
-  Serial.begin(57600);
   Serial.print(F("Starting pattern "));
   Serial.println(buttonPushCounter);
 
 
   // open Gif file
-  file = SPIFFS.open("/gifs/XXX.gif");
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  file = SPIFFS.open("/test.gif");
 
   if (!file) {
     #ifdef DEBUG
     Serial.println("file open failed");
     #endif
     return;
+  }else{
+    Serial.println("file open success!!");    
   }
 
   // setup gif decoder callbacks and start decoding
