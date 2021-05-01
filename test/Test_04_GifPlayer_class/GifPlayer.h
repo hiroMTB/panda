@@ -57,16 +57,11 @@ uint16_t XY (uint16_t x, uint16_t y) {
   return j;
 }
 
-File file;
-
 class GifPlayer{
 
 public:
 
-    GifPlayer(){
-
-    }
-
+    GifPlayer(){}
     void setup();
     void update();
     static void screenClearCallback();
@@ -78,8 +73,10 @@ public:
     static int fileReadBlockCallback(void * buffer, int numberOfBytes);
 
     GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;
-
+    static File file;
 };
+
+File GifPlayer::file;
 
 void GifPlayer::setup(){
 
