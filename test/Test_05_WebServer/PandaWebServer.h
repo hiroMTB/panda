@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <WiFiAP.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
@@ -29,8 +30,30 @@ WebServer PandaWebServer::server;
 File PandaWebServer::fsUploadFile;
 
 void PandaWebServer::setup(){
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+
+    // Station Mode
+    //WiFi.mode(WIFI_STA);
+    //WiFi.begin(ssid, password);
+
+    // SmartConfig Mode
+    // http://www.iotsharing.com/2017/05/how-to-use-smartconfig-on-esp32.html
+    /*
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.beginSmartConfig();
+
+    //Wait for SmartConfig packet from mobile
+    Serial.println("Waiting for SmartConfig.");
+    while (!WiFi.smartConfigDone()) {
+        delay(500);
+        Serial.print(".");
+    }
+    */
+
+    // Soft AP Mode
+    WiFi.softAP(ssid, password);
+    IPAddress myIP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(myIP);
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -137,11 +160,12 @@ void PandaWebServer::handleFileList() {
         File file = dir.openNextFile();
         while (file)
         {
-        // Separate by comma if there are multiple files
-        if (output != "[")
-            output += ",";
-        output += String(file.name()).substring(1);
-        file.close();
+            // Separate by comma if there are multiple files
+            if (output != "[")
+                output += ",";
+            output += String(file.name()).substring(1);
+            file.close();
+            file = dir.openNextFile();
         }
     }
     output += "]";
