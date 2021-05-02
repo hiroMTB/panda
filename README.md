@@ -23,8 +23,9 @@
   - https://www.youtube.com/watch?v=MMcdH1sYgxo
   - https://www.youtube.com/watch?v=WdHc40g36GM&t=1s
 
-- JPG UPLOAD INTERFACE GUY:
+- JPG UPLOAD INTERFACE GUY: (for ESP8266, need modification for ESP32)
   - https://www.youtube.com/watch?v=u_C7robY118&t=284s&ab_channel=ACROBOTIC
+  - github: https://github.com/acrobotic/Ai_Demos_ESP8266/tree/master/webserver_jpeg_ws2812
 
 - MARC MERLIN:
   - https://github.com/marcmerlin/AnimatedGIFs
