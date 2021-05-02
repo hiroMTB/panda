@@ -1,6 +1,7 @@
 #include "GifDecoder.h"
 #include "SPIFFS.h"
 #include <FastLED.h>
+#include <Vector.h>
 
 //#define DEBUG
 #ifdef DEBUG
@@ -71,30 +72,56 @@ public:
     static unsigned long filePositionCallback();
     static int fileReadCallback();
     static int fileReadBlockCallback(void * buffer, int numberOfBytes);
+    void loadGifFiles();
+    static File & getCurrentFile();
+    int setCurrentId(int newId);
 
-    GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;
-    static File file;
+    GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;    
+
+    // This Vector might be too large for ESP storage, 
+    // change to store fileName if it doesn't work
+    static Vector<File> files;      
+    static int currentId;
 };
 
-File GifPlayer::file;
+Vector<File> GifPlayer::files;
+int GifPlayer::currentId = 0;
 
-void GifPlayer::setup(){
+void GifPlayer::loadGifFiles(){
 
     if(!SPIFFS.begin(true)){
       Serial.println("An Error has occurred while mounting SPIFFS");
       return;
     }
-  
-    // open Gif file
-    file = SPIFFS.open("/test.gif");
-    //file = SPIFFS.open("/test.txt");
 
-    if (!file) {
-      Serial.println("file open failed");
-      return;
-    }else{
-      Serial.println("file open success!!");    
+    // open Gif directory
+    File dir = SPIFFS.open("/gifs");
+    if(dir.isDirectory()){      
+      File file = dir.openNextFile();
+      while(file){
+        const String name = String(file.name());
+        files.push_back(file);
+        Serial.printf("load file: %s", name);
+        file = dir.openNextFile();
+      }
     }
+}
+
+int GifPlayer::setCurrentId(int newId){
+  int size = files.size();
+  if(0<=newId && newId < size){
+    currentId = newId;
+  }
+  return currentId;
+}
+
+File & GifPlayer::getCurrentFile(){
+  return files[currentId];
+}
+
+void GifPlayer::setup(){
+
+    loadGifFiles();
 
     // setup gif decoder callbacks and start decoding
     decoder.setScreenClearCallback(screenClearCallback);
@@ -144,7 +171,7 @@ bool GifPlayer::fileSeekCallback(unsigned long position){
   Serial.print("position: ");
   Serial.print (position);
   #endif
-  bool r = file.seek(position);
+  bool r = getCurrentFile().seek(position);
   #ifdef DEBUG_FILE_SEEK_CALLBACK
   Serial.print(", r ");
   Serial.println(r);
@@ -156,14 +183,14 @@ unsigned long GifPlayer::filePositionCallback(){
   #ifdef DEBUG_FILE_POSITION_CALLBACK
   Serial.println(">>> filePositionCallback  ");
   #endif
-  return file.position();
+  return getCurrentFile().position();
 }
 
 int GifPlayer::fileReadCallback(){
   #ifdef DEBUG_FILE_READ_CALLBACK
   Serial.println(">>> fileReadCallback");
   #endif
-  return file.read();
+  return getCurrentFile().read();
 }
 
 int GifPlayer::fileReadBlockCallback(void * buffer, int numberOfBytes){
@@ -173,7 +200,7 @@ int GifPlayer::fileReadBlockCallback(void * buffer, int numberOfBytes){
   Serial.println(numberOfBytes);
   #endif
 
-  int num_read = file.read((uint8_t *)buffer, numberOfBytes);
+  int num_read = getCurrentFile().read((uint8_t *)buffer, numberOfBytes);
 
   #ifdef DEBUG_FILE_READ_BLOCK_CALLBACK
   Serial.print(", read ");
