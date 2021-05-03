@@ -1,7 +1,8 @@
 #include "GifDecoder.h"
 #include "SPIFFS.h"
 #include <FastLED.h>
-#include <Vector.h>
+#include <vector>
+#include <map>
 
 //#define DEBUG
 #ifdef DEBUG
@@ -74,18 +75,20 @@ public:
     static int fileReadBlockCallback(void * buffer, int numberOfBytes);
     void loadGifFiles();
     static File & getCurrentFile();
-    int setCurrentId(int newId);
+    void setCurrentFilename(String filename);
 
     GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;    
 
     // This Vector might be too large for ESP storage, 
     // change to store fileName if it doesn't work
-    static Vector<File> files;      
-    static int currentId;
+    //static std::vector<File> files;      
+    static std::map<String, File> filemap;
+    static String currentFilename;
 };
 
-Vector<File> GifPlayer::files;
-int GifPlayer::currentId = 0;
+//std::vector<File> GifPlayer::files;
+std::map<String, File> GifPlayer::filemap;
+String GifPlayer::currentFilename = "";
 
 void GifPlayer::loadGifFiles(){
 
@@ -100,23 +103,19 @@ void GifPlayer::loadGifFiles(){
       File file = dir.openNextFile();
       while(file){
         const String name = String(file.name());
-        files.push_back(file);
+        filemap.insert({name, file});
         Serial.printf("load file: %s", name);
         file = dir.openNextFile();
       }
     }
 }
 
-int GifPlayer::setCurrentId(int newId){
-  int size = files.size();
-  if(0<=newId && newId < size){
-    currentId = newId;
-  }
-  return currentId;
+void GifPlayer::setCurrentFilename(String filename){
+  currentFilename = filename;
 }
 
 File & GifPlayer::getCurrentFile(){
-  return files[currentId];
+  return filemap[currentFilename];
 }
 
 void GifPlayer::setup(){
