@@ -130,23 +130,27 @@ bool PandaWebServer::handleFileRead(String path) {
 }
 
 void PandaWebServer::handleFileUpload() {
+    
     HTTPUpload& upload = server.upload();
-    if (upload.status == UPLOAD_FILE_START)
-    {
+
+    if (upload.status == UPLOAD_FILE_START) {
         String filename = upload.filename;
-        if (!filename.startsWith("/"))
-        filename = "/" + filename;
-        Serial.print("handleFileUpload Name: "); Serial.println(filename);
+        if (!filename.startsWith("/")){
+            filename = "/" + filename;
+        }
+        Serial.print("handleFileUpload Name: "); 
+        Serial.println(filename);
         fsUploadFile = SPIFFS.open(filename, "w");
-    } else if (upload.status == UPLOAD_FILE_WRITE)
-    {
-        if (fsUploadFile)
-        fsUploadFile.write(upload.buf, upload.currentSize);
-    } else if (upload.status == UPLOAD_FILE_END)
-    {
-        if (fsUploadFile)
-        fsUploadFile.close();
-        Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+        if (fsUploadFile){
+            fsUploadFile.write(upload.buf, upload.currentSize);
+        }
+    } else if (upload.status == UPLOAD_FILE_END) {
+        if (fsUploadFile){
+            fsUploadFile.close();
+        }
+        Serial.print("handleFileUpload Size: "); 
+        Serial.println(upload.totalSize);
     }
 }
 
