@@ -99,25 +99,22 @@
     function init() {
         console.log("js init");
         
-        // var req = new XMLHttpRequest();
-        // req.open("get", "/list", true);
-        // req.onreadystatechange = function() {
-        //    if (req.readyState == XMLHttpRequest.DONE) {
+        // let listReq = new XMLHttpRequest();
+        // listReq.open("get", "/list", true);
+        // listReq.onreadystatechange = function() {
+        //    if (listReq.readyState == XMLHttpRequest.DONE) {
         //        console.log("/list\n" + req.responseText);
 
                 let fileList = [
                     "test.gif", 
-                    "test.gif", 
-                    "test.gif",
-                    "test.gif",
-                    "test.gif",
-                    "test.gif",
-                    "test.gif"
+                    "test1.gif", 
+                    "test2.gif",
+                    "test3.gif"
                  ];
                 generatePlaylist(fileList);
         //    }
         // }
-        // req.send(null);
+        // listReq.send(null);
 
         // semantic ui, enable tab
         $('.tabular.menu .item').tab();
@@ -134,7 +131,7 @@
             let filename = fileList[i];
             
             let item = document.createElement("div");
-            item.classList.add("item");
+            item.classList.add("item", filename);
 
             let img = document.createElement("img");
             img.classList.add("ui", "left", "floated", "mini", "image");
@@ -147,10 +144,18 @@
             let playBtn = document.createElement("div");
             playBtn.classList.add("ui", "right", "floated", "blue", "button");
             playBtn.innerText = "play";
+            playBtn.onclick = function(){
+                console.log("Play button, clicked!!");
+                playFile(filename);
+            };
 
             let deleteBtn = document.createElement("div");
             deleteBtn.classList.add("ui", "right", "floated", "red", "button");
             deleteBtn.innerText = "delete";
+            deleteBtn.onclick = function(){
+                console.log("delete button, clicked!!");
+                deleteFile(filename);
+            };
             
             item.appendChild(img);
             item.appendChild(content);
@@ -166,10 +171,25 @@
     }
 
     function deleteFile( filename ){
-        var req = new XMLHttpRequest();
-        let url = "/delete?" + filename;
-        req.open("delete", url, true);
-        req.send(null);
+        let els = document.getElementsByClassName(filename);
+        console.log(els.length);
+        
+        while(els.length>0){
+            let parent = els[0].parentNode;
+            parent.removeChild(els[0]);
+        }
+        
+        // var req = new XMLHttpRequest();
+        // let url = "/delete?" + filename;
+        // req.open("delete", url, true);
+        // req.onreadystatechange = function() {
+        //    if (req.readyState == XMLHttpRequest.DONE) {
+        //        console.log("/delete, done");
+        //        this.parentNode.removeChild(this);
+        //    }
+        // }
+
+        // req.send(null);
     }
 
     function playFile( filename ){
