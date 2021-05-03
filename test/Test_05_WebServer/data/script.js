@@ -98,48 +98,64 @@
     // init
     function init() {
         console.log("js init");
-        generatePlaylist();
+        
+        // var req = new XMLHttpRequest();
+        // req.open("get", "/list", true);
+        // req.onreadystatechange = function() {
+        //    if (req.readyState == XMLHttpRequest.DONE) {
+        //        console.log("/list\n" + req.responseText);
+
+                let fileList = [
+                    "test.gif", 
+                    "test.gif", 
+                    "test.gif",
+                    "test.gif",
+                    "test.gif",
+                    "test.gif",
+                    "test.gif"
+                 ];
+                generatePlaylist(fileList);
+        //    }
+        // }
+        // req.send(null);
 
         // semantic ui, enable tab
         $('.tabular.menu .item').tab();
     }
 
-    function generatePlaylist(){
+    function generatePlaylist(fileList) {
         
-        let numGif = 9;
-        //var req = new XMLHttpRequest();
-
         var playlist = document.getElementById("playlist");
         var filemanager = document.getElementById("filemanager");
 
-        for(let i=0; i<numGif; i++){
+        for(let i=0; i<fileList.length; i++){
             
-            let filePath = "./gifs/test.gif";
+            //let filePath = "./gifs/test.gif";
+            let filename = fileList[i];
             
             let item = document.createElement("div");
             item.classList.add("item");
 
             let img = document.createElement("img");
             img.classList.add("ui", "left", "floated", "mini", "image");
-            img.src = filePath;
+            img.src = "./gifs/" + filename;
             
             let content = document.createElement("div");
             content.classList.add("content");            
-            content.innerText = filePath;
-
-            let deleteBtn = document.createElement("div");
-            deleteBtn.classList.add("ui", "right", "floated", "button");
-            deleteBtn.innerText = "delete";
+            content.innerText = filename;
 
             let playBtn = document.createElement("div");
-            playBtn.classList.add("ui", "right", "floated", "button");
+            playBtn.classList.add("ui", "right", "floated", "blue", "button");
             playBtn.innerText = "play";
+
+            let deleteBtn = document.createElement("div");
+            deleteBtn.classList.add("ui", "right", "floated", "red", "button");
+            deleteBtn.innerText = "delete";
             
             item.appendChild(img);
             item.appendChild(content);
             
             let item2 = item.cloneNode( true );
-
             item.appendChild(playBtn);
             item2.appendChild(deleteBtn);
             
@@ -147,6 +163,20 @@
             filemanager.appendChild(item2);
 
         }
+    }
+
+    function deleteFile( filename ){
+        var req = new XMLHttpRequest();
+        let url = "/delete?" + filename;
+        req.open("delete", url, true);
+        req.send(null);
+    }
+
+    function playFile( filename ){
+        var req = new XMLHttpRequest();
+        let url = "/play?" + filename;
+        req.open("post", url, true);
+        req.send(null);
     }
 
     init();
