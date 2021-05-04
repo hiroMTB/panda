@@ -3,7 +3,8 @@ body {
 }
 
 #top {
-    padding: 5vh;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
 }
 
 .box

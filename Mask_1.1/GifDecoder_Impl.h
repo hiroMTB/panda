@@ -685,7 +685,7 @@ int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::startDecoding(void) {
 
     // Validate the header
     if (! parseGifHeader()) {
-        Serial.println("Not a GIF file");
+        Serial.println("startDecoding(), Not a GIF file");
         return ERROR_FILENOTGIF;
     }
     // If we get here we have a gif file to process

@@ -3,6 +3,8 @@
 #include <FastLED.h>
 #include <vector>
 #include <map>
+#include <string>
+#include "Helper.h"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -97,17 +99,39 @@ void GifPlayer::loadGifFiles(){
       return;
     }
 
+    //claer
+    filemap.clear();
+    
     // open Gif directory
     File dir = SPIFFS.open("/gifs");
     if(dir.isDirectory()){      
       File file = dir.openNextFile();
       while(file){
-        const String name = String(file.name());
-        filemap.insert({name, file});
-        Serial.printf("load file: %s", name);
+        const std::string path = std::string(file.name());
+        std::string str = getFilename(path);
+        replaceWhitespace(str);
+        String filename = String(str.c_str());
+        String type = getContentType(filename);
+        
+        if(type == "image/gif"){
+          filemap.insert({filename, file});
+        }else{
+          Serial.println("skipped file: " + filename + ", " + type);
+        }
+          
         file = dir.openNextFile();
       }
     }
+    
+    
+    Serial.println("Registerd gif files in filemap");
+    std::map<String, File>::iterator itr = filemap.begin();
+    // for(auto itr=filemap.begin(); itr!=filemap.end(); ++itr){
+    for(; itr!=filemap.end(); ++itr){
+      String filename = itr->first;
+      currentFilename = filename;
+      Serial.println(filename);
+    }   
 }
 
 void GifPlayer::setCurrentFilename(String filename){
@@ -139,7 +163,14 @@ void GifPlayer::setup(){
 }
 
 void GifPlayer::update(){
-    decoder.decodeFrame();
+    
+  if(filemap.find(currentFilename) != filemap.end()){
+    //Serial.println(currentFilename);
+    //decoder.decodeFrame();
+  }else{
+    
+    Serial.println("Error, can not find file: " + currentFilename);
+  }
 }
 
 void GifPlayer::screenClearCallback() {

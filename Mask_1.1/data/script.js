@@ -1,7 +1,6 @@
 'use strict';
 ; (function (document, window, index) {
     let form = document.querySelector('.box');
-
     let label = form.querySelector('label');
     let successMsg = form.querySelector('.box__success span');
     let errorMsg = form.querySelector('.box__error span');
@@ -50,23 +49,32 @@
 
         // gathering the form data
         //////////////////////////
-        var ajaxData = new FormData();
+        let ajaxData = new FormData();
 
         if (droppedFiles) {
             Array.prototype.forEach.call(droppedFiles, function (file) {
-                ajaxData.append(file.name, file);
+                // convert whitespace to _
+                let filename = file.name.split(' ').join('_');
+                ajaxData.append(filename, file);
             });
         }
 
         // ajax request
-        var ajax = new XMLHttpRequest();
+        let ajax = new XMLHttpRequest();
         ajax.open(form.getAttribute('method'), form.getAttribute('action'), true);
+
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState == XMLHttpRequest.DONE) {
+                // list up file again
+                generatePlaylist();
+            }
+        }
 
         ajax.onload = function () {
             form.classList.remove('is-uploading');
             if (ajax.status >= 200 && ajax.status < 400) {
                 console.log(ajax.responseText);
-                var data = JSON.parse(ajax.responseText);
+                let data = JSON.parse(ajax.responseText);
                 form.classList.add(data.success == true ? 'is-success' : 'is-error');
                 if (!data.success) errorMsg.textContent = data.error;
             }
@@ -78,10 +86,10 @@
             alert('Error. Please, try again!');
         };
 
-        for (var key of ajaxData.keys()) {
+        for (let key of ajaxData.keys()) {
             console.log("key " + key);
         }
-        for (var val of ajaxData.values()) {
+        for (let val of ajaxData.values()) {
             console.log("val " + val);
         }
 
@@ -98,105 +106,119 @@
     // init
     function init() {
         console.log("js init");
-        
-        // let listReq = new XMLHttpRequest();
-        // listReq.open("get", "/list", true);
-        // listReq.onreadystatechange = function() {
-        //    if (listReq.readyState == XMLHttpRequest.DONE) {
-        //        console.log("/list\n" + req.responseText);
 
-                let fileList = [
-                    "test.gif", 
-                    "test1.gif", 
-                    "test2.gif",
-                    "test3.gif"
-                 ];
-                generatePlaylist(fileList);
-        //    }
-        // }
-        // listReq.send(null);
+        generatePlaylist();
 
         // semantic ui, enable tab
         $('.tabular.menu .item').tab();
     }
 
-    function generatePlaylist(fileList) {
-        
-        var playlist = document.getElementById("playlist");
-        var filemanager = document.getElementById("filemanager");
+    function generatePlaylist() {
 
-        for(let i=0; i<fileList.length; i++){
-            
-            //let filePath = "./gifs/test.gif";
-            let filename = fileList[i];
-            
-            let item = document.createElement("div");
-            item.classList.add("item", filename);
+        let playlist = document.getElementById("playlist");
+        let filemanager = document.getElementById("filemanager");
 
-            let img = document.createElement("img");
-            img.classList.add("ui", "left", "floated", "mini", "image");
-            img.src = "./gifs/" + filename;
-            
-            let content = document.createElement("div");
-            content.classList.add("content");            
-            content.innerText = filename;
+        // clear filelist first
+        removeAllChildNodes(playlist);
+        removeAllChildNodes(filemanager);
 
-            let playBtn = document.createElement("div");
-            playBtn.classList.add("ui", "right", "floated", "blue", "button");
-            playBtn.innerText = "play";
-            playBtn.onclick = function(){
-                console.log("Play button, clicked!!");
-                playFile(filename);
-            };
+        function generate(fileList) {
+            for (let i = 0; i < fileList.length; i++) {
 
-            let deleteBtn = document.createElement("div");
-            deleteBtn.classList.add("ui", "right", "floated", "red", "button");
-            deleteBtn.innerText = "delete";
-            deleteBtn.onclick = function(){
-                console.log("delete button, clicked!!");
-                deleteFile(filename);
-            };
-            
-            item.appendChild(img);
-            item.appendChild(content);
-            
-            let item2 = item.cloneNode( true );
-            item.appendChild(playBtn);
-            item2.appendChild(deleteBtn);
-            
-            playlist.appendChild(item);
-            filemanager.appendChild(item2);
+                //let filePath = "./gifs/test.gif";
+                let filename = fileList[i];
+                filename = filename.split(' ').join('_');
 
+                let item = document.createElement("div");
+                item.classList.add("item", filename);
+
+                let img = document.createElement("img");
+                img.classList.add("ui", "middle", "aligned", "tiny", "image");
+                img.src = "./gifs/" + filename;
+
+                let content = document.createElement("div");
+                content.classList.add("content");
+
+                let header = document.createElement("div");
+                header.classList.add("huge", "middle", "aligned", "header");
+                header.innerText = filename;
+                content.appendChild(header);
+
+                let playBtn = document.createElement("div");
+                playBtn.classList.add("ui", "right", "floated", "blue", "button");
+                playBtn.innerText = "play";
+                playBtn.onclick = function () {
+                    console.log("Play button, clicked!!");
+                    playFile(filename);
+                };
+
+                let deleteBtn = document.createElement("div");
+                deleteBtn.classList.add("ui", "right", "floated", "red", "button");
+                deleteBtn.innerText = "delete";
+                deleteBtn.onclick = function () {
+                    console.log("delete button, clicked!!");
+                    deleteFile(filename);
+                };
+
+                item.appendChild(img);
+                item.appendChild(content);
+
+                let item2 = item.cloneNode(true);
+                item.appendChild(playBtn);
+                item2.appendChild(deleteBtn);
+
+                playlist.appendChild(item);
+                filemanager.appendChild(item2);
+            }
         }
+
+        let listReq = new XMLHttpRequest();
+        listReq.open("get", "/list", true);
+        listReq.onreadystatechange = function () {
+            if (listReq.readyState == XMLHttpRequest.DONE) {
+                console.log("/list\n" + listReq.responseText);
+                //let response = "test.gif,test1.gif,test2.gif,test3.gif";
+                let response = listReq.responseText;
+                let fileList = response.split(',');
+                generate(fileList);
+            }
+        }
+        listReq.send(null);
     }
 
-    function deleteFile( filename ){
+    function deleteFile(filename) {
         let els = document.getElementsByClassName(filename);
         console.log(els.length);
-        
-        while(els.length>0){
+
+        while (els.length > 0) {
             let parent = els[0].parentNode;
             parent.removeChild(els[0]);
         }
-        
-        // var req = new XMLHttpRequest();
-        // let url = "/delete?" + filename;
-        // req.open("delete", url, true);
-        // req.onreadystatechange = function() {
-        //    if (req.readyState == XMLHttpRequest.DONE) {
-        //        console.log("/delete, done");
-        //        this.parentNode.removeChild(this);
-        //    }
-        // }
 
-        // req.send(null);
+        let req = new XMLHttpRequest();
+        let url = "/delete?filename=" + filename;
+        req.open("delete", url, true);
+        req.onreadystatechange = function () {
+            if (req.readyState == XMLHttpRequest.DONE) {
+                console.log("/delete, done " + url);
+            }
+        }
+
+        req.send(null);
     }
 
-    function playFile( filename ){
-        var req = new XMLHttpRequest();
-        let url = "/play?" + filename;
+    function playFile(filename) {
+        let req = new XMLHttpRequest();
+        let url = "/play?filename=" + filename;
         req.open("post", url, true);
         req.send(null);
+    }
+
+    // helper
+    function removeAllChildNodes(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
     }
 
     init();
