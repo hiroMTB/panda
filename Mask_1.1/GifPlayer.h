@@ -166,7 +166,7 @@ void GifPlayer::update(){
     
   if(filemap.find(currentFilename) != filemap.end()){
     //Serial.println(currentFilename);
-    //decoder.decodeFrame();
+    decoder.decodeFrame();
   }else{
     
     Serial.println("Error, can not find file: " + currentFilename);
